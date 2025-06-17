@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Settlement Training</title>
+<style>
+  :root {
+    --primary-color: #003366;
+    --secondary-color: #0066cc;
+    --hover-color: #004a99;
+    --background-color: #f9f9f9;
+    --text-color: #222;
+    --white: #ffffff;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    background: var(--background-color);
+    color: var(--text-color);
+  }
+  header {
+    background: var(--primary-color);
+    color: var(--white);
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .header-title {
+    user-select: none;
+  }
+  .header-buttons button {
+    margin-left: 12px;
+    padding: 8px 16px;
+    font-size: 15px;
+    background: var(--secondary-color);
+    border: none;
+    border-radius: 6px;
+    color: var(--white);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .header-buttons button:hover {
+    background: var(--hover-color);
+  }
+  .instructions {
+    max-width: 700px;
+    margin: 20px auto;
+    background: var(--white);
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    border-radius: 6px;
+    padding: 20px 30px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .instructions h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+    font-weight: 700;
+  }
+  .instructions ol {
+    padding-left: 1.25rem;
+  }
+  .instructions ol li {
+    margin-bottom: 12px;
+  }
+  .instructions ul {
+    padding-left: 1.25rem;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+  .instructions ul li {
+    margin-bottom: 8px;
+  }
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .header-buttons {
+      margin-top: 12px;
+      width: 100%;
+      display: flex;
+      gap: 12px;
+    }
+    .header-buttons button {
+      flex: 1;
+      margin-left: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-title">Settlement Training</div>
+  <div class="header-buttons">
+    <button aria-label="Start the quiz" onclick="window.location.href='start-quiz.html'">Start Quiz</button>
+    <button aria-label="Open settings page" onclick="window.location.href='settings.html'">Settings</button>
+  </div>
+</header>
+
+<main>
+  <div class="instructions" aria-label="How to use Settlement Training">
+    <h2>How to Use This Application: A Step-by-Step Guide</h2>
+    <p>Follow these steps to effectively use the application and make the most of its quiz functionality:</p>
+    <ol>
+      <li>
+        <strong>Import Queries from JSON File</strong><br />
+        Before starting, ensure you have a set of settlement queries ready. Click the <strong>Settings</strong> button on the home page and choose <strong>Import Queries</strong> to upload the provided .json file located in your project folder. This will load the necessary quiz content into the application.
+      </li>
+      <li>
+        <strong>Settings</strong><br />
+        Within the Settings Page, you can Add or Manage your quiz queries:
+        <ul>
+          <li><strong>Add New Queries:</strong> Create new settlement queries for future quizzes.</li>
+          <li><strong>Edit Existing Queries:</strong> Update details of any saved queries.</li>
+          <li><strong>Remove Queries:</strong> Delete queries that are no longer relevant.</li>
+          <li><strong>Import Queries:</strong> Upload a JSON file to load a set of queries into the application.</li>
+          <li><strong>Export Queries:</strong> Save your current set of queries as a JSON file for backup or sharing.</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Start the Quiz</strong><br />
+        Return to the Home Page and click the <strong>Start Quiz</strong> button. You’ll be prompted to select a difficulty level, which controls the quiz timing and pace.
+      </li>
+      <li>
+        <strong>Answer the Queries</strong><br />
+        One query will be presented at a time: Read each query carefully. Submit your answer before the timer runs out. Receive instant feedback after submitting each response.
+      </li>
+      <li>
+        <strong>Review Your Results</strong><br />
+        Once all queries have been answered, a detailed results summary will be displayed. Review your answers alongside the correct ones. Identify which queries were answered correctly or incorrectly. Reflect on your performance to improve next time.
+      </li>
+      <li>
+        <strong>Export Your Results</strong><br />
+        For record-keeping or reporting: Use the <strong>Export All Answers to Excel</strong> feature to download an XLSX file containing your quiz results.
+      </li>
+    </ol>
+  </div>
+</main>
+
+<script src="index.js" defer></script>
+</body>
+</html>

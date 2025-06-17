@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Settings - Settlement Training (Manage Categories View)</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0; padding: 0;
+    background: #f9f9f9;
+    color: #222;
+  }
+  header {
+    background: #003366;
+    color: white;
+    padding: 15px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+  #settingsScreen, #questionPopup, #manageQueriesOverlay {
+    max-width: 700px;
+    margin: 20px auto;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  #settingsScreen {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  button {
+    margin: 10px 10px 10px 0;
+    padding: 10px 20px;
+    background: #003366;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover:not(:disabled) {
+    background: #002244;
+  }
+  button:disabled {
+    background: #999 !important;
+    cursor: not-allowed;
+  }
+  #popupOverlay {
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1050;
+  }
+  #questionPopup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 600px;
+    width: 90%;
+    z-index: 1100;
+    text-align: left;
+    box-sizing: border-box;
+  }
+  #questionPopup h3 {
+    margin-top: 0;
+  }
+  label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  select, input[type=text], input[type=datetime-local], textarea {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+  }
+  select:focus, input[type=text]:focus, input[type=datetime-local]:focus, textarea:focus {
+    outline: none;
+    border-color: #0066cc;
+  }
+  textarea {
+    resize: vertical;
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    margin: 5px 0;
+    font-weight: normal;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox-label input {
+    margin-right: 8px;
+  }
+  #yesNoAnswer, #multipleOptions, #openAnswer {
+    margin-top: 10px;
+  }
+  #newCategoryInputArea {
+    display: none;
+    margin-top: 8px;
+    gap: 8px;
+    align-items: center;
+  }
+  #newCategoryInputArea input {
+    padding: 6px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  /* Container for add and cancel buttons aligned horizontally bottom right */
+  #questionPopupButtons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  #addUpdateQuestionBtn {
+    font-weight: 600;
+    font-size: 16px;
+    padding: 10px 24px;
+    border-radius: 6px;
+  }
+  #cancelQuestionBtn {
+    background: #c00;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 10px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    border: none;
+  }
+  /* Manage Queries Overlay */
+  #manageQueriesOverlay {
+    display: none;
+    position: fixed;
+    top:0; left:0; right:0; bottom:0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1200;
+    align-items: center;
+    justify-content: center;
+  }
+  #manageQueriesOverlay > div {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 6px;
+    width: 480px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    text-align: left;
+    position: relative;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  #manageFilterArea {
+    margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  #manageFilterArea select {
+    flex: 1;
+  }
+  #searchArea {
+    margin-bottom: 12px;
+  }
+  #searchInput {
+    width: 100%;
+    padding: 7px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+  }
+  #searchInput:focus {
+    outline: none;
+    border-color: #0066cc;
+  }
+  #manageQueriesList {
+    max-height: 40vh;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .query-item {
+    border-bottom: 1px solid #ccc;
+    padding: 8px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .query-item:last-child {
+    border-bottom: none;
+  }
+  .query-question {
+    font-weight: 600;
+    font-size: 14px;
+    color: #222;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+  }
+  .query-date {
+    font-size: 12px;
+    color: #666;
+    margin-left: 8px;
+    white-space: nowrap;
+    user-select: none;
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 10px;
+    user-select: none;
+  }
+  .remove-query-btn {
+    background: #c00;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 6px 12px;
+    font-size: 13px;
+    transition: background-color 0.3s ease;
+  }
+  .remove-query-btn:hover:not(:disabled) {
+    background: #900;
+  }
+  button.edit-btn {
+    background: #0066cc;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 4px;
+    padding: 6px 14px;
+    margin-left: 12px;
+    cursor: pointer;
+    font-size: 13px;
+    border: none;
+    flex-shrink: 0;
+    transition: background-color 0.3s ease;
+  }
+  button.edit-btn:hover:not(:disabled) {
+    background: #004a99;
+  }
+  input[type="file"] {
+    display: none;
+  }
+  /* Manage Categories Container - new section */
+  #manageCategoriesView {
+    display: none;
+    border-top: 1px solid #ccc;
+    padding-top: 12px;
+  }
+  #manageCategoriesView.show {
+    display: block;
+  }
+  #categoriesList {
+    margin-top: 10px;
+    max-height: 40vh;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ccc;
+  }
+  .category-item:last-child {
+    border-bottom: none;
+  }
+  .category-name {
+    font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .category-edit-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .category-edit-controls button {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    background: #0066cc;
+    transition: background-color 0.3s ease;
+  }
+  .category-edit-controls button:hover:not(:disabled) {
+    background: #004a99;
+  }
+  .category-edit-controls button.remove-btn {
+    background: #c00;
+  }
+  .category-edit-input {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  .category-edit-input.error {
+    border-color: #c00;
+    background: #fdd;
+  }
+  .category-error-msg {
+    color: #c00;
+    font-size: 12px;
+    margin-top: 4px;
+    min-height: 16px;
+  }
+  #manageCategoriesBackBtn {
+    margin-top: 12px;
+    background: #555;
+  }
+  @media (max-width: 480px) {
+    #questionPopup {
+      width: 90%;
+    }
+    #manageQueriesOverlay > div {
+      width: 90%;
+    }
+    #settingsScreen {
+      flex-direction: column;
+    }
+    #settingsScreen button {
+      width: 100%;
+      margin: 5px 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>Settings</header>
+
+<div id="settingsScreen">
+  <button onclick="showQuestionPopup()">Add Queries</button>
+  <button onclick="showManageQueries()">Manage Queries</button>
+  <button id="importBtn">Import Queries</button>
+  <button id="exportBtn">Export Queries</button>
+  <button style="background:#555;" onclick="goBackToHome()">Back to Home</button>
+  <input type="file" id="importFileInput" accept=".json" />
+</div>
+
+<div id="popupOverlay" onclick="closeAllPopups()"></div>
+
+<!-- Add Query Popup -->
+<div id="questionPopup" data-edit-index="">
+  <h3 id="popupTitle">Add Settlement Query</h3>
+
+  <label for="newDateTime">Date & Time:</label>
+  <input type="datetime-local" id="newDateTime" />
+
+  <label for="newQuestion">Settlement Query:</label>
+  <input type="text" id="newQuestion" placeholder="Enter your query here..." />
+
+  <label for="newDescription">Description:</label>
+  <textarea id="newDescription" rows="3" placeholder="Additional details..."></textarea>
+
+  <label for="newSideDescription">Optional Side Description:</label>
+  <textarea id="newSideDescription" rows="2" placeholder="Optional description to show on quiz right side..."></textarea>
+
+  <label for="categorySelect">Category:</label>
+  <div style="display: flex; align-items: center; gap: 8px;">
+    <select id="categorySelect" style="flex: 1;"></select>
+    <button type="button" id="addCategoryBtn" title="Add new category" style="background:#006600; font-weight:bold; color:#fff; border-radius:4px; padding: 6px 12px; cursor: pointer;">+</button>
+  </div>
+
+  <div id="newCategoryInputArea" style="display:none; margin-top:8px; gap: 8px; align-items: center;">
+    <input type="text" id="newCategoryInput" placeholder="Enter new category" style="flex: 1; padding: 6px 10px; font-size: 14px; border-radius: 4px; border: 1px solid #ccc;" />
+    <button type="button" id="confirmNewCategoryBtn" title="Confirm new category" style="background:#004400; font-weight:bold; color:#fff; border-radius:4px; padding: 6px 12px; cursor:pointer;">Add</button>
+    <button type="button" id="cancelNewCategoryBtn" title="Cancel adding category" style="background:#c00; font-weight:bold; color:#fff; border-radius:4px; padding: 6px 12px; cursor:pointer;">Cancel</button>
+  </div>
+
+  <label for="questionType">Query Type:</label>
+  <select id="questionType" onchange="showOptionFields()">
+    <option value="open">Open Ended</option>
+    <option value="yesno">Tick Box (Yes / No / Void)</option>
+    <option value="multiple">Multiple Choice (tick one)</option>
+  </select>
+
+  <div id="openAnswer" style="display:block; margin-top:10px;">
+    <label for="newAnswerOpen">Correct Answer:</label>
+    <input type="text" id="newAnswerOpen" placeholder="Correct answer text" />
+  </div>
+
+  <div id="yesNoAnswer" style="display:none; margin-top:10px;">
+    <label>Correct Answer:</label>
+    <label class="checkbox-label">
+      <input type="checkbox" name="yesnoAdd" value="Yes" /> Yes
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" name="yesnoAdd" value="No" /> No
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" name="yesnoAdd" value="Void" /> Void
+    </label>
+  </div>
+
+  <div id="multipleOptions" style="display:none; margin-top:10px;">
+    <label>Options (enter at least 2):</label>
+    <input type="text" class="option-input" placeholder="Option 1" />
+    <input type="text" class="option-input" placeholder="Option 2" />
+    <input type="text" class="option-input" placeholder="Option 3 (optional)" />
+    <input type="text" class="option-input" placeholder="Option 4 (optional)" />
+
+    <label for="newAnswer" style="margin-top:8px;">Correct Answer (must match one option):</label>
+    <input type="text" id="newAnswer" placeholder="Correct answer" />
+  </div>
+
+  <div id="questionPopupButtons">
+    <button id="addUpdateQuestionBtn" onclick="addQuestion()">Add Query</button>
+    <button id="cancelQuestionBtn" onclick="closeQuestionPopup()">Cancel</button>
+  </div>
+</div>
+
+<!-- Manage Queries Overlay -->
+<div id="manageQueriesOverlay">
+  <div>
+    <h3 id="manageTitle">Manage Queries</h3>
+
+    <!-- Manage Queries View -->
+    <div id="manageQueriesView">
+      <div id="manageFilterArea">
+        <select id="manageCategoryFilter" onchange="filterManageQueries()">
+          <!-- dynamically populated -->
+        </select>
+        <button style="background:#006600;" id="openManageCategoriesBtn" title="Manage Categories">Manage Categories</button>
+      </div>
+
+      <div id="searchArea">
+        <input type="text" id="searchInput" placeholder="Search Queries..." oninput="filterManageQueries()" />
+      </div>
+
+      <div id="manageQueriesList"></div>
+
+      <label class="checkbox-label" style="margin-top: 8px;">
+        <input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)" /> Select All
+      </label>
+      <button onclick="removeSelectedQueries()" style="margin-top:15px; background:#c00;">Remove Selected Queries</button>
+      <button onclick="closeManageQueries()" style="margin-top:15px; background:#c00;">Close</button>
+    </div>
+
+    <!-- Manage Categories View -->
+    <div id="manageCategoriesView">
+      <button id="manageCategoriesBackBtn">← Back to Queries</button>
+      <h4 style="margin-top: 12px;">Manage Categories</h4>
+      <div id="categoriesList"></div>
+    </div>
+  </div>
+</div>
+
+<script src="settings.js" defer></script>
+
+</body>
+</html>
+
