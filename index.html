@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Settlement Training</title>
+<title>Settlement Training with Enhanced Assistant</title>
 <style>
   :root {
     --primary-color: #003366;
@@ -22,7 +22,7 @@
   header {
     background: var(--primary-color);
     color: var(--white);
-    padding: 10px 20px;
+    padding: 13px 20px;
     font-size: 20px;
     font-weight: bold;
     display: flex;
@@ -47,9 +47,9 @@
   .header-buttons button:hover {
     background: var(--hover-color);
   }
-  .instructions {
+  main {
     max-width: 700px;
-    margin: 20px auto;
+    margin: 20px auto 100px auto;
     background: var(--white);
     box-shadow: 0 0 8px rgba(0,0,0,0.1);
     border-radius: 6px;
@@ -57,26 +57,25 @@
     font-size: 15px;
     line-height: 1.5;
   }
-  .instructions h2 {
+  main h2 {
     margin-top: 0;
     color: var(--primary-color);
     font-weight: 700;
   }
-  .instructions ol {
+  main ol {
     padding-left: 1.25rem;
   }
-  .instructions ol li {
+  main ol li {
     margin-bottom: 12px;
   }
-  .instructions ul {
+  main ul {
     padding-left: 1.25rem;
     margin-top: 8px;
     margin-bottom: 8px;
   }
-  .instructions ul li {
+  main ul li {
     margin-bottom: 8px;
   }
-  /* Responsive adjustments */
   @media (max-width: 480px) {
     header {
       flex-direction: column;
@@ -93,6 +92,248 @@
       margin-left: 0;
     }
   }
+  /* AI Chat styles */
+  #aiChatWidget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    max-width: 480px;
+    width: 100%;
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: 0 8px 36px rgba(0,0,0,0.20);
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1000;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    font-size: 16px;
+  }
+  #aiChatWidget.collapsed {
+    transform: translateY(calc(100% - 60px));
+    opacity: 0.8;
+    pointer-events: auto;
+  }
+  #aiChatHeader {
+    background: var(--primary-color);
+    color: var(--white);
+    padding: 10px 24px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    outline: none;
+    font-size: 14px;
+  }
+  #aiChatHeader:focus {
+    outline: 3px solid var(--secondary-color);
+  }
+  #aiChatToggleIcon {
+    font-size: 20px;
+    line-height: 1;
+    user-select: none;
+    transition: transform 0.3s ease;
+  }
+  #aiChatToggleIcon.open {
+    transform: rotate(180deg);
+  }
+  #aiChatBody {
+    display: flex;
+    flex-direction: column;
+    height: 440px;
+    background: var(--background-color);
+    padding: 16px 20px;
+    overflow: hidden;
+  }
+  #typingIndicator {
+    font-style: italic;
+    color: #444;
+    font-size: 10px;
+    margin-bottom: 10px;
+    height: 15px;
+  }
+  #aiChatMessages {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    scroll-behavior: smooth;
+  }
+  /* Chat message styles for messenger app style */
+  .aiMsg {
+    max-width: 70%;
+    margin-bottom: 12px;
+    padding: 10px 16px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    position: relative;
+    display: inline-block;
+    clear: both;
+  }
+  .aiUserMsg {
+    background: var(--secondary-color);
+    color: var(--white);
+    border-radius: 16px 0 16px 16px;
+    float: right;
+    text-align: right;
+  }
+  .aiBotMsg {
+    background: #e2e8f0;
+    color: #222;
+    border-radius: 0 16px 16px 16px;
+    float: left;
+    text-align: left;
+  }
+  @keyframes bounce-in-right {
+    0% { transform: translateX(100%) scale(0.7); opacity: 0; }
+    60% { transform: translateX(-10%) scale(1.05); opacity: 1; }
+    80% { transform: translateX(5%) scale(0.95); }
+    100% { transform: translateX(0) scale(1); }
+  }
+  @keyframes bounce-in-left {
+    0% { transform: translateX(-100%) scale(0.7); opacity: 0; }
+    60% { transform: translateX(10%) scale(1.05); opacity: 1; }
+    80% { transform: translateX(-5%) scale(0.95); }
+    100% { transform: translateX(0) scale(1); }
+  }
+  /* Smaller input field - adjusted for more compact size */
+  #aiChatInputArea {
+    display: flex;
+    gap: 8px;
+  }
+  #aiChatInput {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    border: 1.5px solid #bbb;
+    min-height: 30px;
+    flex-grow: 1;
+  }
+  /* Smaller send button */
+  #aiChatSendBtn {
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 14px;
+    background: var(--primary-color);
+    border: none;
+    color: var(--white);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  #aiChatSendBtn:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+  #aiChatSendBtn:hover:not(:disabled) {
+    background: var(--hover-color);
+  }
+  /* Smaller clear chat button */
+  #clearChatBtn {
+    font-size: 14px;
+    padding: 10px 20px;
+    background: var(--secondary-color);
+    border: none;
+    border-radius: 20px;
+    color: var(--white);
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    align-self: flex-end;
+    transition: background-color 0.3s ease;
+  }
+  #clearChatBtn:hover {
+    background: var(--hover-color);
+  }
+  /* Smaller feedback buttons */
+  .feedback-buttons {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+  }
+  .feedback-buttons button {
+    font-size: 18px;
+    padding: 0 6px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    user-select: none;
+    color: #666;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+  .feedback-buttons button:hover {
+    color: var(--primary-color);
+    text-shadow: 0 0 7px var(--primary-color);
+  }
+  .feedback-buttons button:disabled {
+    color: #aaa;
+    cursor: default;
+    text-shadow: none;
+  }
+  /* Suggested Topics inline style */
+  .dropdown {
+    position: relative;
+    display: block;
+    margin-top: 12px;
+  }
+  .dropbtn {
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 10px 18px;
+    font-size: 14px;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    width: 100%;
+    text-align: left;
+  }
+  .dropbtn:hover, .dropbtn:focus {
+    background-color: var(--hover-color);
+    outline: none;
+  }
+  #quickRepliesContent {
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    margin-top: 6px;
+  }
+  #quickRepliesContent button {
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    color: #003366;
+    font-weight: 600;
+    padding: 6px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
+  }
+  #quickRepliesContent button:hover,
+  #quickRepliesContent button:focus {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    outline: none;
+  }
+  /* Answer expandable toggle */
+  .answer-expandable {
+    cursor: pointer;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-top: 6px;
+    user-select: none;
+  }
+  .answer-content.collapsed {
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -105,46 +346,71 @@
   </div>
 </header>
 
-<main>
-  <div class="instructions" aria-label="How to use Settlement Training">
-    <h2>How to Use This Application: A Step-by-Step Guide</h2>
-    <p>Follow these steps to effectively use the application and make the most of its quiz functionality:</p>
-    <ol>
-      <li>
-        <strong>Import Queries from JSON File</strong><br />
-        Before starting, ensure you have a set of settlement queries ready. Click the <strong>Settings</strong> button on the home page and choose <strong>Import Queries</strong> to upload the provided .json file located in your project folder. This will load the necessary quiz content into the application.
-      </li>
-      <li>
-        <strong>Settings</strong><br />
-        Within the Settings Page, you can Add or Manage your quiz queries:
-        <ul>
-          <li><strong>Add New Queries:</strong> Create new settlement queries for future quizzes.</li>
-          <li><strong>Edit Existing Queries:</strong> Update details of any saved queries.</li>
-          <li><strong>Remove Queries:</strong> Delete queries that are no longer relevant.</li>
-          <li><strong>Import Queries:</strong> Upload a JSON file to load a set of queries into the application.</li>
-          <li><strong>Export Queries:</strong> Save your current set of queries as a JSON file for backup or sharing.</li>
-        </ul>
-      </li>
-      <li>
-        <strong>Start the Quiz</strong><br />
-        Return to the Home Page and click the <strong>Start Quiz</strong> button. You’ll be prompted to select a difficulty level, which controls the quiz timing and pace.
-      </li>
-      <li>
-        <strong>Answer the Queries</strong><br />
-        One query will be presented at a time: Read each query carefully. Submit your answer before the timer runs out. Receive instant feedback after submitting each response.
-      </li>
-      <li>
-        <strong>Review Your Results</strong><br />
-        Once all queries have been answered, a detailed results summary will be displayed. Review your answers alongside the correct ones. Identify which queries were answered correctly or incorrectly. Reflect on your performance to improve next time.
-      </li>
-      <li>
-        <strong>Export Your Results</strong><br />
-        For record-keeping or reporting: Use the <strong>Export All Answers to Excel</strong> feature to download an XLSX file containing your quiz results.
-      </li>
-    </ol>
-  </div>
+<main aria-label="How to use Settlement Training">
+  <h2>Using This Application: Step-by-Step Instructions</h2>
+  <p>Follow these simple steps to get the most from the Settlement Training application. This guide helps new employees understand how to manage, start, and complete quizzes effectively.</p>
+  <ol>
+    <li>
+      <strong>Import Queries from a JSON File</strong><br />
+      Prepare your settlement queries beforehand. Navigate to the Settings page and select <em>Import Queries</em> to upload your JSON file with quiz content.
+    </li>
+    <li>
+      <strong>Configure Your Quiz Settings</strong><br />
+      In Settings, you can add new queries, modify existing ones, remove outdated entries, and export your current quiz data for backup or sharing.
+    </li>
+    <li>
+      <strong>Start Your Quiz</strong><br />
+      Return to the Home page and click <em>Start Quiz</em>. Choose your desired difficulty level to control quiz timing and pacing.
+    </li>
+    <li>
+      <strong>Answer the Questions</strong><br />
+      Each question will appear individually. Submit your answers before the timer expires and receive immediate feedback.
+    </li>
+    <li>
+      <strong>Review Your Performance</strong><br />
+      After completing all questions, view a detailed summary highlighting correct and incorrect answers, alongside time taken and accuracy.
+    </li>
+    <li>
+      <strong>Export Your Results</strong><br />
+      Use the <em>Export All Answers to Excel</em> option for record-keeping or reporting purposes.
+    </li>
+  </ol>
 </main>
 
+<!-- AI Chat widget -->
+<div id="aiChatWidget" role="dialog" aria-modal="true" aria-label="AI Assistant Chat" class="collapsed">
+  <div id="aiChatHeader" tabindex="0" aria-expanded="false" aria-controls="aiChatBody" aria-haspopup="true" aria-pressed="false">
+    <span>Training Assistant</span>
+    <span id="aiChatToggleIcon" aria-hidden="true">&#x25B2;</span>
+  </div>
+  <div id="aiChatBody">
+    <div id="typingIndicator" aria-live="polite" aria-atomic="true" role="status"></div>
+    <div id="aiChatMessages" aria-live="polite" aria-atomic="true" role="log"></div>
+    <form id="aiChatForm" autocomplete="off" onsubmit="return false;">
+      <div id="aiChatInputArea">
+        <input id="aiChatInput" type="text" aria-label="Type your question here" placeholder="Ask me anything..." />
+        <button id="aiChatSendBtn" disabled aria-disabled="true" aria-label="Send question" type="submit">Send</button>
+      </div>
+    </form>
+    <button id="clearChatBtn" aria-label="Clear chat conversation" title="Clear chat conversation">Clear Chat</button>
+    <!-- Suggested Topics collapsible container -->
+    <div class="dropdown" id="quickRepliesDropdown" style="margin-top: 12px;">
+      <button class="dropbtn" 
+              aria-haspopup="true" 
+              aria-expanded="false" 
+              id="dropdownToggleBtn" 
+              aria-label="Show suggested questions"
+              type="button">
+        Suggested Topics ▼
+      </button>
+      <div class="dropdown-content" id="quickRepliesContent" role="list" aria-labelledby="dropdownToggleBtn" tabindex="-1" aria-hidden="true">
+        <!-- Suggested topic buttons will be appended here dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="index.js" defer></script>
+
 </body>
 </html>
